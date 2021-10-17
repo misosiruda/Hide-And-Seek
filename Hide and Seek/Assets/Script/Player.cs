@@ -18,7 +18,7 @@ public class Player : MonoBehaviour
     public LayerMask doorLM;
     private Transform shojiDoor;
     private float time;
-    static WaitForSeconds wait60FPS;
+    private static WaitForSeconds wait60FPS;
     private static bool isDoorMoving = false;
 
     public LayerMask closetLM;
@@ -31,6 +31,10 @@ public class Player : MonoBehaviour
 
     public LayerMask chiffonierLM;
     private Transform chfnier;
+
+    private static WaitForFixedUpdate waitFix;
+    public LayerMask CharmLM;
+    public LayerMask ringLM;
 
     public void Move()
     {
@@ -237,11 +241,25 @@ public class Player : MonoBehaviour
         }
     }
 
+    public IEnumerator ItemPick(LayerMask layermask)
+    {
+        RaycastHit hitItem;
+        if (Physics.Raycast(plCamera.position, plCamera.forward, out hitItem, 1f, layermask))
+        {
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                hitItem.collider.gameObject.SetActive(false);
+            }
+        }
+        yield return waitFix;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         gravity = 1000f;
         wait60FPS = new WaitForSeconds(1f / 60f);
+        waitFix = new WaitForFixedUpdate();
     }
 
     // Update is called once per frame
@@ -254,6 +272,7 @@ public class Player : MonoBehaviour
         StartCoroutine(DoorInterection());
         StartCoroutine(ClosetInterection());
         StartCoroutine(ChiffonierInterection());
+        StartCoroutine(ItemPick(CharmLM));
     }
     private void LateUpdate()
     {
