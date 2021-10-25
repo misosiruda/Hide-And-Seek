@@ -10,6 +10,9 @@ public class RandomDispenser : MonoBehaviour
     private WaitForFixedUpdate waitFix = new WaitForFixedUpdate();
     private List<GameObject> childList = new List<GameObject>();
 
+    public RandomSettingManager rsm;
+    public RandomItemDispenser rid;
+
     public IEnumerator Dispenser()
     {
         int num = 1;
@@ -23,6 +26,7 @@ public class RandomDispenser : MonoBehaviour
             }
             catch (Exception ex)
             {
+                rsm.RonSet(parent.name);
                 break;
             }
             yield return waitFix;
@@ -60,6 +64,18 @@ public class RandomDispenser : MonoBehaviour
             }
         }
         //작업 끝 알리는 함수 넣어주기
+        rsm.RolSet(parent.name);
+        if (rsm.isLoaded())
+        {
+            Debug.Log("object dispensed");
+            rid.StartDispenser();
+            //작업 끝
+        }
+    }
+    public RandomDispenser()
+    {
+        rsm = new RandomSettingManager();
+        rid = new RandomItemDispenser();
     }
     // Start is called before the first frame update
     void Start()
