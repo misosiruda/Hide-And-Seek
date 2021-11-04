@@ -5,17 +5,22 @@ using UnityEngine;
 
 public class RandomItemDispenser : MonoBehaviour
 {
-    private List<GameObject> charmList = new List<GameObject>();
-    private List<GameObject> ringList = new List<GameObject>();
-    private WaitForFixedUpdate waitFix = new WaitForFixedUpdate();
-    // Start is called before the first frame update
-    private IEnumerator Dispenser(List<GameObject> list, string st)
+    private static List<GameObject> charmList = new List<GameObject>();
+    private static List<GameObject> bellList = new List<GameObject>();
+    private static WaitForFixedUpdate waitFix = new WaitForFixedUpdate();
+    private static GameObject item;
+
+    private RandomSettingManager rsm;
+    private IEnumerator Dispenser(List<GameObject> list, string st, int max)
     {
         while (true)
         {
             try
             {
-                list.Add(GameObject.Find(st));
+                item = GameObject.Find(st);
+                Debug.Log(item.name);
+                list.Add(item);
+                item.SetActive(false);
             }
             catch (Exception ex)
             {
@@ -23,10 +28,26 @@ public class RandomItemDispenser : MonoBehaviour
             }
             yield return waitFix;
         }
+        StartCoroutine(RandomItemSetting(list, max));
+    }
+
+    private IEnumerator RandomItemSetting(List<GameObject> list, int max)
+    {
+        int num = 0;
+        while(num < max)
+        {
+            list[UnityEngine.Random.Range(0, list.Count)].SetActive(true);
+            num++;
+            yield return waitFix;
+        }
+        rsm.RilSet();
     }
     public void StartDispenser()
     {
-        StartCoroutine(Dispenser(charmList, "charm"));
-        //Dispenser(ringList, "ring"); 미구현
+        rsm = new RandomSettingManager();
+        rsm.RinSet();
+        StartCoroutine(Dispenser(charmList, "charm", 8));
+        rsm.RinSet();
+        StartCoroutine(Dispenser(bellList, "bell", 30));
     }
 }

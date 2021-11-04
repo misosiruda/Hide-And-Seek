@@ -10,8 +10,8 @@ public class RandomDispenser : MonoBehaviour
     private WaitForFixedUpdate waitFix = new WaitForFixedUpdate();
     private List<GameObject> childList = new List<GameObject>();
 
-    public RandomSettingManager rsm;
-    public RandomItemDispenser rid;
+    private RandomSettingManager rsm;
+    private RandomItemDispenser rid;
 
     public IEnumerator Dispenser()
     {
@@ -72,15 +72,12 @@ public class RandomDispenser : MonoBehaviour
             //작업 끝
         }
     }
-    public RandomDispenser()
-    {
-        rsm = new RandomSettingManager();
-        rid = new RandomItemDispenser();
-    }
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(Dispenser());
+        StartCoroutine(Dispenser()); 
+        rsm = new RandomSettingManager();
+        rid = this.gameObject.AddComponent<RandomItemDispenser>();
     }
 
     // Update is called once per frame

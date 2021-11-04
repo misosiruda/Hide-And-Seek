@@ -33,9 +33,12 @@ public class Player : MonoBehaviour
     private Transform chfnier;
 
     private static WaitForFixedUpdate waitFix;
-    public LayerMask CharmLM;
-    public LayerMask ringLM;
+    public LayerMask itemLM;
+    private GameObject item;
 
+    public GameObject flashLight;
+    public GameObject fireLight;
+    public GameObject defaultLight;
     public void Move()
     {
 
@@ -210,6 +213,7 @@ public class Player : MonoBehaviour
     public IEnumerator ChiffonierInterection()
     {
         RaycastHit hitchfn;
+        RaycastHit hititem;
         if (Physics.Raycast(plCamera.position, plCamera.forward, out hitchfn, 2f, chiffonierLM))
         {
             if (Input.GetKeyDown(KeyCode.E))
@@ -228,30 +232,87 @@ public class Player : MonoBehaviour
                 }
                 else
                 {
-                    time = 0;
-                    while (time < 21)
+                    if ((Physics.Raycast(plCamera.position, plCamera.forward, out hititem, 2f, itemLM)))
                     {
-                        chfnier.localPosition = Vector3.Lerp(chfnier.localPosition, new Vector3(0f, chfnier.localPosition.y, 0.4f), 0.2f);
-                        time++;
-                        yield return wait60FPS;
+                        item = hititem.transform.gameObject;
+                        //아이템 획득
+                        item.SetActive(false);
                     }
-                    chfnier.localPosition = new Vector3(0f, chfnier.localPosition.y, 0.4f);
+                    else
+                    {
+                        time = 0;
+                        while (time < 21)
+                        {
+                            chfnier.localPosition = Vector3.Lerp(chfnier.localPosition, new Vector3(0f, chfnier.localPosition.y, 0.4f), 0.2f);
+                            time++;
+                            yield return wait60FPS;
+                        }
+                        chfnier.localPosition = new Vector3(0f, chfnier.localPosition.y, 0.4f);
+                    }
+                }
+            }
+        }
+    }
+    public void ItemInterectiom()
+    {
+        RaycastHit hititem;
+        if ((Physics.Raycast(plCamera.position, plCamera.forward, out hititem, 2f, itemLM)))
+        {
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                if (hititem.transform.parent.parent.parent.name == "chiffonier") return;
+                else
+                {
+                    item = hititem.transform.gameObject;
+                    //아이템 획득
+                    item.SetActive(false);
                 }
             }
         }
     }
 
-    public IEnumerator ItemPick(LayerMask layermask)
+    public void InvenToryUse()
     {
-        RaycastHit hitItem;
-        if (Physics.Raycast(plCamera.position, plCamera.forward, out hitItem, 1f, layermask))
+        if(Input.GetKeyDown(KeyCode.F))
         {
-            if (Input.GetKeyDown(KeyCode.E))
+            switch(GameManager.instance.invenSlot)
             {
-                hitItem.collider.gameObject.SetActive(false);
+                case 0:
+                    FlashLightUse();
+                    break;
+                case 1:
+                    FireLightUse();
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
             }
         }
-        yield return waitFix;
+    }
+    private void FlashLightUse()
+    {
+        if (flashLight.activeSelf)
+        {
+            flashLight.SetActive(false);
+            defaultLight.SetActive(true);
+            return;
+        }
+        flashLight.SetActive(true);
+        fireLight.SetActive(false);
+        defaultLight.SetActive(false);
+    }
+    private void FireLightUse()
+    {
+        if (fireLight.activeSelf)
+        {
+            fireLight.SetActive(false);
+            defaultLight.SetActive(true);
+            return;
+        }
+        flashLight.SetActive(false);
+        fireLight.SetActive(true);
+        defaultLight.SetActive(false);
     }
 
     // Start is called before the first frame update
@@ -272,7 +333,8 @@ public class Player : MonoBehaviour
         StartCoroutine(DoorInterection());
         StartCoroutine(ClosetInterection());
         StartCoroutine(ChiffonierInterection());
-        StartCoroutine(ItemPick(CharmLM));
+        ItemInterectiom();
+        InvenToryUse();
     }
     private void LateUpdate()
     {

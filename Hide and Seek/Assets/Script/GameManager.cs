@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManeger : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
-    public static GameManeger instance;
+    public static GameManager instance;
+    public int invenSlot = 0;
 
     
     void Awake()
