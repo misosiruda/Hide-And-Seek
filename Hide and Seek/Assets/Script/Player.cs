@@ -47,7 +47,6 @@ public class Player : MonoBehaviour
         wDown = Input.GetButton("Run");
 
 
-
         Vector2 moveInput = new Vector2(hAxis, vAxis);
         bool isMove = moveInput.magnitude != 0;
         //카메라 전면
@@ -69,6 +68,15 @@ public class Player : MonoBehaviour
         gravity += 8f;
         // 캐릭터 움직임.
         plcon.Move(moveDir * Time.deltaTime);
+
+        if (wDown)
+        {
+            GameManager.Instance.isLoud = true;
+        }
+        else
+        {
+            GameManager.Instance.isLoud = false;
+        }
     }
 
     public IEnumerator DoorInterection()
@@ -149,7 +157,8 @@ public class Player : MonoBehaviour
                     time = 0;
                     cloDoor = hitDoor.transform;
                     isPlaiavle = false;
-                    while(time<21)
+                    GameManager.Instance.isInCloset = true;
+                    while (time<21)
                     {
                         cloDoor.localRotation = Quaternion.Euler(-90, 90 / 18 * time, 0);
                         time++;
@@ -183,6 +192,7 @@ public class Player : MonoBehaviour
             {
                 isPlaiavle = false;
                 time = 0;
+                GameManager.Instance.isInCloset = false;
                 while (time < 21)
                 {
                     cloDoor.localRotation = Quaternion.Euler(-90, 90 / 18 * time, 0);
@@ -275,7 +285,7 @@ public class Player : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.F))
         {
-            switch(GameManager.instance.invenSlot)
+            switch(GameManager.Instance.invenSlot)
             {
                 case 0:
                     FlashLightUse();

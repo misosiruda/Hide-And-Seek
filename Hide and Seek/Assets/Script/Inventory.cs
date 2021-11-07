@@ -24,7 +24,7 @@ public class Inventory : MonoBehaviour
         invenList[prNum].isOn = false;
         invenList[a].isOn = true;
         prNum = a;
-        GameManager.instance.invenSlot = prNum;
+        GameManager.Instance.invenSlot = prNum;
     }
     private void InventoryChane()
     {
