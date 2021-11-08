@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public bool isLoud;
     public bool isInCloset;
     public bool gameover;
+    public float ghostRunSpd = 5;
 
     public static GameManager Instance 
     {

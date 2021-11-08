@@ -55,9 +55,18 @@ public class Player : MonoBehaviour
         Vector3 moveDir = lookForward * moveInput.y + lookRight * moveInput.x;
 
         player.forward = lookForward;
+        GameManager.Instance.isLoud = false;
         if (moveInput.y > 0)
         {
             moveDir = moveDir.normalized * speed * (wDown ? 0.8f : 0.3f);
+            if (wDown)
+            {
+                GameManager.Instance.isLoud = true;
+            }
+            else
+            {
+                GameManager.Instance.isLoud = false;
+            }
         }
         else
         {
@@ -68,15 +77,6 @@ public class Player : MonoBehaviour
         gravity += 8f;
         // 캐릭터 움직임.
         plcon.Move(moveDir * Time.deltaTime);
-
-        if (wDown)
-        {
-            GameManager.Instance.isLoud = true;
-        }
-        else
-        {
-            GameManager.Instance.isLoud = false;
-        }
     }
 
     public IEnumerator DoorInterection()

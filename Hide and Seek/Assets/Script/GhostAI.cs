@@ -17,6 +17,9 @@ public class GhostAI : MonoBehaviour
     private static WaitForSeconds wait60FPS;
     private static bool isDoorMoving = false;
 
+    private static Vector3 roamingPos;
+    private static WaitForSeconds waitRoamTerm;
+
     private void OnTriggerStay(Collider other)
     {
         if(other.transform == target)
@@ -34,7 +37,7 @@ public class GhostAI : MonoBehaviour
 
     private bool IsInSight(Transform target)
     {
-        Vector3 trDir = (ghost.position - target.position).normalized;
+        Vector3 trDir = (target.position - ghost.position).normalized;
         float dot = Vector3.Dot(ghost.forward, trDir);
         float theta = Mathf.Acos(dot) * Mathf.Rad2Deg;
         if (theta <= 70f) return true;
@@ -46,7 +49,7 @@ public class GhostAI : MonoBehaviour
         RaycastHit hitinfo;
         if (Physics.Raycast(ghost.position + ghost.up, ghost.forward, out hitinfo, 2f, doorLM))
         {
-            yield return waitSec;
+            //yield return waitSec;
             if (!isDoorMoving)
             {
                 isDoorMoving = true;
@@ -103,12 +106,29 @@ public class GhostAI : MonoBehaviour
         }
     }
 
+    private IEnumerator RoamingPos()
+    {
+        while(true)
+        {
+            Vector3 pos = ghost.position;
+            roamingPos = new Vector3();
+            roamingPos.x = Random.Range(pos.x - 10f, pos.x + 10f);
+            roamingPos.y = pos.y;
+            roamingPos.z = Random.Range(pos.z - 10f, pos.z + 10f);
+            Debug.Log("new Roaming Pos");
+            yield return waitRoamTerm;
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         target = GameObject.Find("Charactor").GetComponent<Transform>();
         waitSec = new WaitForSeconds(1f);
+        wait60FPS = new WaitForSeconds(1f / 60f);
+        waitRoamTerm = new WaitForSeconds(6f);
+        StartCoroutine(RoamingPos());
     }
 
     // Update is called once per frame
@@ -116,16 +136,18 @@ public class GhostAI : MonoBehaviour
     {
         StartCoroutine(OpenDoor());
         if (isChacing)
-        { 
+        {
+            agent.speed = GameManager.Instance.ghostRunSpd;
             agent.destination = target.position;
             if (GameManager.Instance.isInCloset)
             {
                 isChacing = false;
             }
         }
-        else
+        else //로밍중
         {
-
+            agent.speed = 2f;
+            agent.destination = roamingPos;
         }
     }
 }
