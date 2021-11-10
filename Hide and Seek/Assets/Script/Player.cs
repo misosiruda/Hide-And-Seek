@@ -39,6 +39,9 @@ public class Player : MonoBehaviour
     public GameObject flashLight;
     public GameObject fireLight;
     public GameObject defaultLight;
+
+    public Transform aim;
+    public GameObject catBell;
     public void Move()
     {
 
@@ -294,6 +297,7 @@ public class Player : MonoBehaviour
                     FireLightUse();
                     break;
                 case 2:
+                    ThrowBell();
                     break;
                 case 3:
                     break;
@@ -323,6 +327,12 @@ public class Player : MonoBehaviour
         flashLight.SetActive(false);
         fireLight.SetActive(true);
         defaultLight.SetActive(false);
+    }
+
+    private void ThrowBell()
+    {
+        GameManager.Instance.catBell.Add(Instantiate(catBell, plCamera.position, Quaternion.identity));
+        GameManager.Instance.catBell[GameManager.Instance.catBell.Count - 1].GetComponent<Rigidbody>().AddForce((aim.position - plCamera.position) * 10f, ForceMode.Impulse);
     }
 
     // Start is called before the first frame update

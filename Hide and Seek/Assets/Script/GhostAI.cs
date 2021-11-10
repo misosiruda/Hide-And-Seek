@@ -11,7 +11,6 @@ public class GhostAI : MonoBehaviour
     public Transform ghost;
     public LayerMask doorLM;
 
-    private WaitForSeconds waitSec;
     private Transform shojiDoor;
     private float time;
     private static WaitForSeconds wait60FPS;
@@ -20,11 +19,14 @@ public class GhostAI : MonoBehaviour
     private static Vector3 roamingPos;
     private static WaitForSeconds waitRoamTerm;
 
+    private GameObject temp;
+    private static WaitForFixedUpdate waitFix;
+
     private void OnTriggerStay(Collider other)
     {
-        if(other.transform == target)
+        if(GameManager.Instance.catBell.Count == 0)
         {
-            if(GameManager.Instance.isLoud || IsInSight(target))
+            if (other.transform == target && (GameManager.Instance.isLoud || IsInSight(target)))
             {
                 isChacing = true;
                 if (GameManager.Instance.isInCloset)
@@ -37,10 +39,17 @@ public class GhostAI : MonoBehaviour
 
     private bool IsInSight(Transform target)
     {
-        Vector3 trDir = (target.position - ghost.position).normalized;
-        float dot = Vector3.Dot(ghost.forward, trDir);
-        float theta = Mathf.Acos(dot) * Mathf.Rad2Deg;
-        if (theta <= 70f) return true;
+        if (GameManager.Instance.catBell.Count == 0)
+        {
+            Vector3 trDir = (target.position - ghost.position).normalized;
+            float dot = Vector3.Dot(ghost.forward, trDir);
+            float theta = Mathf.Acos(dot) * Mathf.Rad2Deg;
+            RaycastHit hitinfo;
+            Physics.Raycast(ghost.position, target.position - ghost.position, out hitinfo);
+            Debug.DrawRay(ghost.position, target.position - ghost.position, Color.red);
+            if (theta <= 70f && hitinfo.collider.gameObject.transform == target) return true;
+            else return false;
+        }
         else return false;
     }
 
@@ -110,13 +119,39 @@ public class GhostAI : MonoBehaviour
     {
         while(true)
         {
-            Vector3 pos = ghost.position;
-            roamingPos = new Vector3();
-            roamingPos.x = Random.Range(pos.x - 10f, pos.x + 10f);
-            roamingPos.y = pos.y;
-            roamingPos.z = Random.Range(pos.z - 10f, pos.z + 10f);
-            Debug.Log("new Roaming Pos");
-            yield return waitRoamTerm;
+            if(!isChacing && GameManager.Instance.catBell.Count == 0)
+            {
+                Vector3 pos = ghost.position;
+                roamingPos = new Vector3();
+                roamingPos.x = Random.Range(pos.x - 10f, pos.x + 10f);
+                roamingPos.y = pos.y;
+                roamingPos.z = Random.Range(pos.z - 10f, pos.z + 10f);
+                yield return waitRoamTerm;
+            }
+            yield return waitFix;
+        }
+    }
+
+    private IEnumerator SpotCatBell()
+    {
+        while(true)
+        {
+            yield return wait60FPS;
+            if (GameManager.Instance.catBell.Count != 0)
+            {
+                while(true)
+                {
+                    agent.destination = GameManager.Instance.catBell[0].transform.position;
+                    yield return waitFix;
+                    if(Vector3.Distance(ghost.position, GameManager.Instance.catBell[0].transform.position) < 0.5f)
+                    {
+                        temp = GameManager.Instance.catBell[0];
+                        GameManager.Instance.catBell.Remove(temp);
+                        Destroy(temp);
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -125,17 +160,18 @@ public class GhostAI : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         target = GameObject.Find("Charactor").GetComponent<Transform>();
-        waitSec = new WaitForSeconds(1f);
         wait60FPS = new WaitForSeconds(1f / 60f);
         waitRoamTerm = new WaitForSeconds(6f);
+        waitFix = new WaitForFixedUpdate();
         StartCoroutine(RoamingPos());
+        StartCoroutine(SpotCatBell());
     }
 
     // Update is called once per frame
     void Update()
     {
-        StartCoroutine(OpenDoor());
-        if (isChacing)
+        //StartCoroutine(OpenDoor());
+        if (isChacing && GameManager.Instance.catBell.Count == 0)
         {
             agent.speed = GameManager.Instance.ghostRunSpd;
             agent.destination = target.position;

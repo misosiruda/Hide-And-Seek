@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public bool isInCloset;
     public bool gameover;
     public float ghostRunSpd = 5;
+    public List<GameObject> catBell = new List<GameObject>();
 
     public static GameManager Instance 
     {
