@@ -22,6 +22,12 @@ public class GhostAI : MonoBehaviour
     private GameObject temp;
     private static WaitForFixedUpdate waitFix;
 
+    public Animator ghostAni;
+
+    public Transform plCamera;
+    private bool moshindeiru;
+    public Transform ghostFace;
+
     private void OnTriggerStay(Collider other)
     {
         if(GameManager.Instance.catBell.Count == 0)
@@ -31,7 +37,8 @@ public class GhostAI : MonoBehaviour
                 isChacing = true;
                 if (GameManager.Instance.isInCloset)
                 {
-                    GameManager.Instance.gameover = true;
+                    isChacing = false;
+                    moshindeiru = true;
                 }
             }
         }
@@ -121,11 +128,16 @@ public class GhostAI : MonoBehaviour
         {
             if(!isChacing && GameManager.Instance.catBell.Count == 0)
             {
-                Vector3 pos = ghost.position;
+                Vector3 pos = target.position;
                 roamingPos = new Vector3();
-                roamingPos.x = Random.Range(pos.x - 10f, pos.x + 10f);
+                roamingPos.x = Random.Range(pos.x - GameManager.Instance.ghostRoamingDistance, pos.x + GameManager.Instance.ghostRoamingDistance);
                 roamingPos.y = pos.y;
-                roamingPos.z = Random.Range(pos.z - 10f, pos.z + 10f);
+                roamingPos.z = Random.Range(pos.z - GameManager.Instance.ghostRoamingDistance, pos.z + GameManager.Instance.ghostRoamingDistance);
+                if (agent.velocity.magnitude < 0.3f)
+                {
+                    yield return waitFix;
+                    continue;
+                }
                 yield return waitRoamTerm;
             }
             yield return waitFix;
@@ -139,12 +151,16 @@ public class GhostAI : MonoBehaviour
             yield return wait60FPS;
             if (GameManager.Instance.catBell.Count != 0)
             {
-                while(true)
+                ghostAni.SetBool("isWalk", false);
+                ghostAni.SetBool("isRun", true);
+                while (true)
                 {
+                    agent.speed = GameManager.Instance.ghostRunSpd;
                     agent.destination = GameManager.Instance.catBell[0].transform.position;
                     yield return waitFix;
-                    if(Vector3.Distance(ghost.position, GameManager.Instance.catBell[0].transform.position) < 0.5f)
+                    if (Vector3.Distance(ghost.position, GameManager.Instance.catBell[0].transform.position) < 0.5f)
                     {
+                        agent.speed = 2f;
                         temp = GameManager.Instance.catBell[0];
                         GameManager.Instance.catBell.Remove(temp);
                         Destroy(temp);
@@ -153,6 +169,19 @@ public class GhostAI : MonoBehaviour
                 }
             }
         }
+    }
+
+    private IEnumerator Moshindeiru()
+    {
+        ghostAni.SetBool("isWalk", false);
+        ghostAni.SetBool("isRun", false);
+        GameManager.Instance.gameover = true;
+        ghostAni.SetTrigger("scream");
+        ghost.position = target.position + (target.forward * 0.5f) - new Vector3(0, 1.5f, 0);
+        yield return waitFix;
+        ghost.LookAt(new Vector3(plCamera.position.x, ghost.position.y, plCamera.position.z));
+        yield return waitFix;
+        plCamera.LookAt(ghostFace.position);
     }
 
     // Start is called before the first frame update
@@ -170,20 +199,47 @@ public class GhostAI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //StartCoroutine(OpenDoor());
-        if (isChacing && GameManager.Instance.catBell.Count == 0)
+        if(GameManager.Instance.randomDispensEnd)
         {
-            agent.speed = GameManager.Instance.ghostRunSpd;
-            agent.destination = target.position;
-            if (GameManager.Instance.isInCloset)
+            //StartCoroutine(OpenDoor());
+            if (isChacing && GameManager.Instance.catBell.Count == 0)//쫒는중
             {
-                isChacing = false;
+                ghostAni.SetBool("isWalk", false);
+                ghostAni.SetBool("isRun", true);
+                agent.speed = GameManager.Instance.ghostRunSpd;
+                agent.destination = target.position;
+                if (GameManager.Instance.isInCloset && !moshindeiru)
+                {
+                    isChacing = false;
+                }
+                if (Vector3.Distance(ghost.position, target.position) < 2f && !GameManager.Instance.isInCloset)//잡힘
+                {
+                    ghostAni.SetBool("isWalk", false);
+                    ghostAni.SetBool("isRun", false);
+                    ghostAni.SetTrigger("scream");
+                    ghost.LookAt(new Vector3(plCamera.position.x, ghost.position.y, plCamera.position.z));
+                    GameManager.Instance.gameover = true;
+                    plCamera.LookAt(ghostFace.position);
+                }
             }
-        }
-        else //로밍중
-        {
-            agent.speed = 2f;
-            agent.destination = roamingPos;
+            else if (GameManager.Instance.catBell.Count == 0)//로밍중
+            {
+                agent.speed = 2f;
+                agent.angularSpeed = 150f;
+                ghostAni.SetBool("isWalk", true);
+                ghostAni.SetBool("isRun", false);
+                agent.destination = roamingPos;
+                if (agent.velocity.magnitude < 0.3f)
+                {
+                    ghostAni.SetBool("isWalk", false);
+                    ghostAni.SetBool("isRun", false);
+                    agent.angularSpeed = 0f;
+                }
+            }
+            if (moshindeiru && GameManager.Instance.getOutCloset)//옷장 후 갑툭튀
+            {
+                StartCoroutine(Moshindeiru());
+            }
         }
     }
 }

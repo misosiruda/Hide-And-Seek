@@ -8,7 +8,6 @@ public class Player : MonoBehaviour
     public CharacterController plcon;
     public Transform plCamera;
     public float speed;
-    private bool isPlaiavle = true;
 
     private float hAxis;
     private float vAxis;
@@ -159,8 +158,9 @@ public class Player : MonoBehaviour
                     isInCloset = true;
                     time = 0;
                     cloDoor = hitDoor.transform;
-                    isPlaiavle = false;
+                    GameManager.Instance.isPlaiable = false;
                     GameManager.Instance.isInCloset = true;
+                    GameManager.Instance.getOutCloset = false;
                     while (time<21)
                     {
                         cloDoor.localRotation = Quaternion.Euler(-90, 90 / 18 * time, 0);
@@ -185,15 +185,15 @@ public class Player : MonoBehaviour
                         time++;
                         yield return wait60FPS;
                     }
-                    isPlaiavle = true;
+                    GameManager.Instance.isPlaiable = true;
                 }
             }
         }
-        else if(isPlaiavle && Physics.SphereCast(player.position - player.forward, 1f, player.forward, out hitout, 2f, closetOutLM))
+        else if(GameManager.Instance.isPlaiable && Physics.SphereCast(player.position - player.forward, 1f, player.forward, out hitout, 2f, closetOutLM))
         {
             if (Input.GetKeyDown(KeyCode.E))
             {
-                isPlaiavle = false;
+                GameManager.Instance.isPlaiable = false;
                 time = 0;
                 GameManager.Instance.isInCloset = false;
                 while (time < 21)
@@ -210,6 +210,7 @@ public class Player : MonoBehaviour
                     time++;
                     yield return wait60FPS;
                 }
+                GameManager.Instance.getOutCloset = true;
                 time = 0;
                 while (time < 21)
                 {
@@ -217,7 +218,7 @@ public class Player : MonoBehaviour
                     time++;
                     yield return wait60FPS;
                 }
-                isPlaiavle = true;
+                GameManager.Instance.isPlaiable = true;
                 isInCloset = false;
             }
         }
@@ -249,6 +250,7 @@ public class Player : MonoBehaviour
                     {
                         item = hititem.transform.gameObject;
                         //아이템 획득
+                        GameManager.Instance.ItemGet(item);
                         item.SetActive(false);
                     }
                     else
@@ -278,6 +280,7 @@ public class Player : MonoBehaviour
                 {
                     item = hititem.transform.gameObject;
                     //아이템 획득
+                    GameManager.Instance.ItemGet(item);
                     item.SetActive(false);
                 }
             }
@@ -331,6 +334,8 @@ public class Player : MonoBehaviour
 
     private void ThrowBell()
     {
+        if (GameManager.Instance.bellCount == 0) return;
+        GameManager.Instance.bellCount -= 1;
         GameManager.Instance.catBell.Add(Instantiate(catBell, plCamera.position, Quaternion.identity));
         GameManager.Instance.catBell[GameManager.Instance.catBell.Count - 1].GetComponent<Rigidbody>().AddForce((aim.position - plCamera.position) * 10f, ForceMode.Impulse);
     }
@@ -346,7 +351,7 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(isPlaiavle)
+        if(GameManager.Instance.isPlaiable && !GameManager.Instance.gameover)
         {
             Move();
         }
@@ -358,14 +363,17 @@ public class Player : MonoBehaviour
     }
     private void LateUpdate()
     {
-        Vector3 vector = player.position;
-        vector.y = player.position.y;
-        plCamera.position = vector; 
-        Vector2 mouseDelta = new Vector2(Input.GetAxis("Mouse X") * 2, Input.GetAxis("Mouse Y") * 2);
-        Vector3 camAngle = plCamera.rotation.eulerAngles;
-        float x = camAngle.x - mouseDelta.y;
-        if (x < 180f) { x = Mathf.Clamp(x, -1f, 89f); }
-        else { x = Mathf.Clamp(x, 271f, 361f); }
-        plCamera.rotation = Quaternion.Euler(x, camAngle.y + mouseDelta.x, camAngle.z);
+        if(!GameManager.Instance.gameover)
+        {
+            Vector3 vector = player.position;
+            vector.y = player.position.y;
+            plCamera.position = vector;
+            Vector2 mouseDelta = new Vector2(Input.GetAxis("Mouse X") * 2, Input.GetAxis("Mouse Y") * 2);
+            Vector3 camAngle = plCamera.rotation.eulerAngles;
+            float x = camAngle.x - mouseDelta.y;
+            if (x < 180f) { x = Mathf.Clamp(x, -1f, 89f); }
+            else { x = Mathf.Clamp(x, 271f, 361f); }
+            plCamera.rotation = Quaternion.Euler(x, camAngle.y + mouseDelta.x, camAngle.z);
+        }
     }
 }

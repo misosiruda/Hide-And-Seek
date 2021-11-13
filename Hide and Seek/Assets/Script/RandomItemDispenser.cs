@@ -18,7 +18,6 @@ public class RandomItemDispenser : MonoBehaviour
             try
             {
                 item = GameObject.Find(st);
-                Debug.Log(item.name);
                 list.Add(item);
                 item.SetActive(false);
             }
@@ -36,11 +35,23 @@ public class RandomItemDispenser : MonoBehaviour
         int num = 0;
         while(num < max)
         {
-            list[UnityEngine.Random.Range(0, list.Count)].SetActive(true);
-            num++;
+            try
+            {
+                list[UnityEngine.Random.Range(0, list.Count)].SetActive(true);
+                num++;
+            }
+            catch (Exception ex)
+            {
+                Debug.Log(ex);
+                continue;
+            }
             yield return waitFix;
         }
         rsm.RilSet();
+        if(rsm.RinGet() == rsm.RilGet())
+        {
+            GameManager.Instance.randomDispensEnd = true;
+        }
     }
     public void StartDispenser()
     {

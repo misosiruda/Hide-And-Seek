@@ -67,7 +67,6 @@ public class RandomDispenser : MonoBehaviour
         rsm.RolSet(parent.name);
         if (rsm.isLoaded())
         {
-            Debug.Log("object dispensed");
             rid.StartDispenser();
             //작업 끝
         }
