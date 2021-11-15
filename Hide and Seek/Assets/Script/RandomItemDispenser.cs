@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class RandomItemDispenser : MonoBehaviour
 {
-    private static List<GameObject> charmList = new List<GameObject>();
-    private static List<GameObject> bellList = new List<GameObject>();
+    private static List<GameObject> charmList;
+    private static List<GameObject> bellList;
     private static WaitForFixedUpdate waitFix = new WaitForFixedUpdate();
     private static GameObject item;
 
@@ -43,7 +43,7 @@ public class RandomItemDispenser : MonoBehaviour
             catch (Exception ex)
             {
                 Debug.Log(ex);
-                continue;
+                Debug.Log(list.Count.ToString() + ", " + max.ToString());
             }
             yield return waitFix;
         }
@@ -55,6 +55,8 @@ public class RandomItemDispenser : MonoBehaviour
     }
     public void StartDispenser()
     {
+        charmList = new List<GameObject>();
+        bellList = new List<GameObject>();
         rsm = new RandomSettingManager();
         rsm.RinSet();
         StartCoroutine(Dispenser(charmList, "charm", 8));

@@ -199,7 +199,7 @@ public class GhostAI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(GameManager.Instance.randomDispensEnd)
+        if(GameManager.Instance.gamestart)
         {
             //StartCoroutine(OpenDoor());
             if (isChacing && GameManager.Instance.catBell.Count == 0)//쫒는중

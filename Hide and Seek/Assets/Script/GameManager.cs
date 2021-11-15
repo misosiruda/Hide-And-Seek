@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -17,15 +18,22 @@ public class GameManager : MonoBehaviour
     public int charmCount = 0;
     public List<GameObject> catBell = new List<GameObject>();
     public bool randomDispensEnd = false;
+    public bool gamestart = false;
     public bool isPlaiable = false;
     public bool endGame = false;
 
     private WaitForSeconds waitGameOver;
+    private WaitForSeconds waitText;
     private WaitForFixedUpdate waitFix;
     private WaitForSeconds waitEndGame;
     public GameObject gameoverUI;
     public GameObject inventoryUI;
     public GameObject loadingUI;
+    public GameObject loadingText;
+    public GameObject startText;
+    public Text startStory;
+    private string startStory_ = "200X년 08월 21일\n나는 할아버지의 유품을 어쩌구 저쩌구 이 집에 왔다.\n하지만 집에 들어온 순간 갑자기 기절 했고 깨어 보니 할아버지 집같지만 이상한 장소에\n손전등, 라이터, 그리고 이곳에서 나가려면 부적을 8개 찾아 토리이를 통과해라 라는 편지 한장 뿐이였다.";
+
 
     public static GameManager Instance 
     {
@@ -101,14 +109,29 @@ public class GameManager : MonoBehaviour
         {
             if(randomDispensEnd)
             {
-                isPlaiable = true;
-                inventoryUI.SetActive(true);
-                loadingUI.SetActive(false);
-                yield break;
+                loadingText.SetActive(false);
+                startText.SetActive(true);
+                if (Input.anyKeyDown)
+                {
+                    gamestart = true;
+                    isPlaiable = true;
+                    inventoryUI.SetActive(true);
+                    loadingUI.SetActive(false);
+                    yield break;
+                }
             }
             yield return waitFix;
+        }   
+    }
+
+    private IEnumerator StartStory()
+    {
+        for (int i = 0; i < startStory_.Length; i++)
+        {
+            startStory.text += startStory_[i];
+            if (gamestart) yield break;
+            yield return waitText;
         }
-        
     }
 
     void Awake()
@@ -123,15 +146,32 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject); //자기 자신을 삭제
         }
         //DontDestroyOnLoad(this.gameObject);
-        StartCoroutine(GameStart());
     }
     // Start is called before the first frame update
     void Start()
     {
+        invenSlot = 0;
+        isLoud = false;
+        isInCloset = false;
+        getOutCloset = false;
+        gameover = false;
+        ghostRunSpd = 5;
+        ghostRoamingDistance = 50f;
+        bellCount = 0;
+        charmCount = 0;
+        catBell = new List<GameObject>();
+        randomDispensEnd = false;
+        gamestart = false;
+        isPlaiable = false;
+        endGame = false;
+
         waitFix = new WaitForFixedUpdate();
         waitGameOver = new WaitForSeconds(2f);
         waitEndGame = new WaitForSeconds(3f);
+        waitText = new WaitForSeconds(0.1f);
+        StartCoroutine(GameStart());
         StartCoroutine(GameOver());
+        StartCoroutine(StartStory());
     }
 
     // Update is called once per frame
@@ -140,3 +180,5 @@ public class GameManager : MonoBehaviour
         
     }
 }
+//귀신 애니메이션 각도 회전 할때 위치 고정하고 각도 바꾸기 그럴려면 네비메쉬랑 연동 필요함
+//플레이어가 귀신에게 잡혔을때 좀더 격동적인 무브먼트 필요함
