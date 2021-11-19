@@ -41,6 +41,46 @@ public class Player : MonoBehaviour
 
     public Transform aim;
     public GameObject catBell;
+
+    public AudioClip walk_01;
+    public AudioClip walk_02;
+    public AudioClip walk_03;
+    public AudioClip walk_04;
+    public AudioClip walk_05;
+    public AudioClip walk_06;
+    public AudioClip walk_07;
+    public AudioClip walk_08;
+    public AudioClip walk_09;
+    public AudioClip walk_10;
+    public AudioClip run_01;
+    public AudioClip run_02;
+    public AudioClip run_03;
+    public AudioClip run_04;
+    public AudioClip run_05;
+    public AudioClip run_06;
+    public AudioClip run_07;
+    public AudioClip run_08;
+    public AudioClip run_09;
+    public AudioClip run_10;
+
+    public AudioSource footStep;
+    private List<AudioClip> walkFXList;
+    private List<AudioClip> runFXList;
+    private WaitForSeconds waitWalk;
+    private WaitForSeconds waitRun;
+
+    public AudioClip openDoor;
+    public AudioClip closeDoor;
+    public AudioClip openChiniffonier;
+    public AudioClip closeChiniffonier;
+    public AudioClip openCloset;
+    public AudioClip closeCloset;
+    public AudioClip pickBell;
+    public AudioClip throwBell;
+    public AudioClip pickCharm;
+    private AudioSource objectFX;
+    public AudioSource pickItem;
+
     public void Move()
     {
 
@@ -50,7 +90,6 @@ public class Player : MonoBehaviour
 
 
         Vector2 moveInput = new Vector2(hAxis, vAxis);
-        bool isMove = moveInput.magnitude != 0;
         //카메라 전면
         Vector3 lookForward = new Vector3(plCamera.forward.x, 0f, plCamera.forward.z).normalized;
         Vector3 lookRight = new Vector3(plCamera.right.x, 0f, plCamera.right.z).normalized;
@@ -90,6 +129,7 @@ public class Player : MonoBehaviour
             {
                 if (Input.GetKeyDown(KeyCode.E))
                 {
+                    objectFX = hitinfo.collider.gameObject.GetComponent<AudioSource>();
                     isDoorMoving = true;
                     time = 0;
                     shojiDoor = hitinfo.transform;
@@ -97,6 +137,8 @@ public class Player : MonoBehaviour
                     {
                         if (shojiDoor.localPosition.z < 0.85f)
                         {
+                            objectFX.clip = openDoor;
+                            objectFX.Play();
                             while (time < 30)
                             {
                                 shojiDoor.localPosition = Vector3.Lerp(shojiDoor.localPosition, new Vector3(-0.053f, 0f, 0.85f), 0.2f);
@@ -107,6 +149,8 @@ public class Player : MonoBehaviour
                         }
                         else
                         {
+                            objectFX.clip = closeDoor;
+                            objectFX.Play();
                             while (time < 30)
                             {
                                 shojiDoor.localPosition = Vector3.Lerp(shojiDoor.localPosition, new Vector3(-0.053f, 0f, 0f), 0.2f);
@@ -120,6 +164,8 @@ public class Player : MonoBehaviour
                     {
                         if (shojiDoor.localPosition.z > -0.85f)
                         {
+                            objectFX.clip = openDoor;
+                            objectFX.Play();
                             while (time < 30)
                             {
                                 shojiDoor.localPosition = Vector3.Lerp(shojiDoor.localPosition, new Vector3(-0.009f, 0f, -0.85f), 0.2f);
@@ -130,6 +176,8 @@ public class Player : MonoBehaviour
                         }
                         else
                         {
+                            objectFX.clip = closeDoor;
+                            objectFX.Play();
                             while (time < 30)
                             {
                                 shojiDoor.localPosition = Vector3.Lerp(shojiDoor.localPosition, new Vector3(-0.009f, 0f, 0f), 0.2f);
@@ -161,6 +209,9 @@ public class Player : MonoBehaviour
                     GameManager.Instance.isPlaiable = false;
                     GameManager.Instance.isInCloset = true;
                     GameManager.Instance.getOutCloset = false;
+                    objectFX = cloDoor.parent.GetComponent<AudioSource>();
+                    objectFX.clip = openCloset;
+                    objectFX.Play();
                     while (time<21)
                     {
                         cloDoor.localRotation = Quaternion.Euler(-90, 90 / 18 * time, 0);
@@ -173,7 +224,7 @@ public class Player : MonoBehaviour
                     closet = hitClo.transform;
                     while (time<10)
                     {
-                        player.Rotate(0, (180 / 8 * time), 0);
+                        plCamera.Rotate(0, 18, 0, Space.World);
                         player.position = Vector3.Lerp(player.position, new Vector3(closet.position.x, closet.position.y + 1.5f, closet.position.z), 0.3f);
                         time++;
                         yield return wait60FPS;
@@ -196,6 +247,9 @@ public class Player : MonoBehaviour
                 GameManager.Instance.isPlaiable = false;
                 time = 0;
                 GameManager.Instance.isInCloset = false;
+                objectFX = cloDoor.parent.GetComponent<AudioSource>();
+                objectFX.clip = closeCloset;
+                objectFX.Play();
                 while (time < 21)
                 {
                     cloDoor.localRotation = Quaternion.Euler(-90, 90 / 18 * time, 0);
@@ -233,9 +287,12 @@ public class Player : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.E))
             {
                 chfnier = hitchfn.transform;
+                objectFX = chfnier.gameObject.GetComponent<AudioSource>();
                 if (chfnier.localPosition.z < 0.45f)
                 {
                     time = 0;
+                    objectFX.clip = openChiniffonier;
+                    objectFX.Play();
                     while (time < 21)
                     {
                         chfnier.localPosition = Vector3.Lerp(chfnier.localPosition, new Vector3(0f, chfnier.localPosition.y, 1.1f), 0.2f);
@@ -250,12 +307,24 @@ public class Player : MonoBehaviour
                     {
                         item = hititem.transform.gameObject;
                         //아이템 획득
+                        switch(item.tag)
+                        {
+                            case "Charm":
+                                pickItem.clip = pickCharm;
+                                break;
+                            case "Bell":
+                                pickItem.clip = pickBell;
+                                break;
+                        }
+                        pickItem.Play();
                         GameManager.Instance.ItemGet(item);
                         item.SetActive(false);
                     }
                     else
                     {
                         time = 0;
+                        objectFX.clip = closeChiniffonier;
+                        objectFX.Play();
                         while (time < 21)
                         {
                             chfnier.localPosition = Vector3.Lerp(chfnier.localPosition, new Vector3(0f, chfnier.localPosition.y, 0.4f), 0.2f);
@@ -280,6 +349,16 @@ public class Player : MonoBehaviour
                 {
                     item = hititem.transform.gameObject;
                     //아이템 획득
+                    switch (item.tag)
+                    {
+                        case "Charm":
+                            pickItem.clip = pickCharm;
+                            break;
+                        case "Bell":
+                            pickItem.clip = pickBell;
+                            break;
+                    }
+                    pickItem.Play();
                     GameManager.Instance.ItemGet(item);
                     item.SetActive(false);
                 }
@@ -311,11 +390,13 @@ public class Player : MonoBehaviour
     {
         if (flashLight.activeSelf)
         {
+            GameManager.Instance.lightNow = "";
             flashLight.SetActive(false);
             defaultLight.SetActive(true);
             return;
         }
         flashLight.SetActive(true);
+        GameManager.Instance.lightNow = "flash";
         fireLight.SetActive(false);
         defaultLight.SetActive(false);
     }
@@ -323,13 +404,74 @@ public class Player : MonoBehaviour
     {
         if (fireLight.activeSelf)
         {
+            GameManager.Instance.lightNow = "";
             fireLight.SetActive(false);
             defaultLight.SetActive(true);
             return;
         }
+        GameManager.Instance.lightNow = "fire";
         flashLight.SetActive(false);
         fireLight.SetActive(true);
         defaultLight.SetActive(false);
+    }
+
+    private void FXListInitialize()
+    {
+        walkFXList = new List<AudioClip>();
+        walkFXList.Add(walk_01);
+        walkFXList.Add(walk_02);
+        walkFXList.Add(walk_03);
+        walkFXList.Add(walk_04);
+        walkFXList.Add(walk_05);
+        walkFXList.Add(walk_06);
+        walkFXList.Add(walk_07);
+        walkFXList.Add(walk_08);
+        walkFXList.Add(walk_09);
+        walkFXList.Add(walk_10);
+        runFXList = new List<AudioClip>();
+        runFXList.Add(run_01);
+        runFXList.Add(run_02);
+        runFXList.Add(run_03);
+        runFXList.Add(run_04);
+        runFXList.Add(run_05);
+        runFXList.Add(run_06);
+        runFXList.Add(run_07);
+        runFXList.Add(run_08);
+        runFXList.Add(run_09);
+        runFXList.Add(run_10);
+    }
+
+    private IEnumerator FootStepFX()
+    {
+        while(true)
+        {
+            if(GameManager.Instance.gameover)
+            {
+                yield break;
+            }
+            Vector2 moveInput = new Vector2(hAxis, vAxis);
+            if (moveInput.y > 0)
+            {
+                if (wDown)
+                {
+                    yield return waitRun;
+                    footStep.clip = runFXList[Random.Range(0, 10)];
+                    footStep.volume = 1f;
+                    footStep.Play();
+                }
+                else
+                {
+                    yield return waitWalk;
+                    footStep.clip = walkFXList[Random.Range(0, 10)];
+                    footStep.volume = 0.4f;
+                    footStep.Play();
+                }
+            }
+            else
+            {
+                yield return waitFix;
+            }
+        }
     }
 
     private void ThrowBell()
@@ -346,6 +488,10 @@ public class Player : MonoBehaviour
         gravity = 1000f;
         wait60FPS = new WaitForSeconds(1f / 60f);
         waitFix = new WaitForFixedUpdate();
+        waitWalk = new WaitForSeconds(0.5f);
+        waitRun = new WaitForSeconds(0.25f);
+        FXListInitialize();
+        StartCoroutine(FootStepFX());
     }
 
     // Update is called once per frame
@@ -354,6 +500,10 @@ public class Player : MonoBehaviour
         if(GameManager.Instance.isPlaiable && !GameManager.Instance.gameover)
         {
             Move();
+        }
+        if(GameManager.Instance.gameover || GameManager.Instance.ending)
+        {
+            footStep.Pause();
         }
         StartCoroutine(DoorInterection());
         StartCoroutine(ClosetInterection());

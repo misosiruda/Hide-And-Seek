@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
     public bool randomDispensEnd = false;
     public bool gamestart = false;
     public bool isPlaiable = false;
-    public bool endGame = false;
+    public string lightNow = "";
 
     private WaitForSeconds waitGameOver;
     private WaitForSeconds waitText;
@@ -29,11 +29,15 @@ public class GameManager : MonoBehaviour
     public GameObject gameoverUI;
     public GameObject inventoryUI;
     public GameObject loadingUI;
+    public GameObject endingUI;
     public GameObject loadingText;
     public GameObject startText;
+    public Text endingStory;
     public Text startStory;
-    private string startStory_ = "200X년 08월 21일\n나는 할아버지의 유품을 어쩌구 저쩌구 이 집에 왔다.\n하지만 집에 들어온 순간 갑자기 기절 했고 깨어 보니 할아버지 집같지만 이상한 장소에\n손전등, 라이터, 그리고 이곳에서 나가려면 부적을 8개 찾아 토리이를 통과해라 라는 편지 한장 뿐이였다.";
-
+    private string startStory_ = "200X년 08월 21일\n나는 할아버지의 유품을 어쩌구 저쩌구 이 집에 왔다.\n하지만 집에 들어온 순간 갑자기 기절 했고 깨어 보니 할아버지 집같지만 이상한 장소에 손전등, 라이터, 그리고 이곳에서 나가려면 부적을 8개 찾아 토리이를 통과해라 라는 편지 한장 뿐이였다.";
+    private string endingStory_ = "정신을 차리고 보니 나는 할아버지가 들어가지 말라던 지하실 입구에서 깨어났고 그곳엔 작은 사당이 있었으며 내가 모았던 부적이 덕지덕지 붙어 있었다.\n그리고 거기엔 할아버지의 편지도 있었는데 '미안하다'외에는 흐릿하여 아무것도 보이지 않았다. 왠지 꿈속에서 편지조각들을 봤던거 같은데 기억이 나지 않는다.";
+    public bool ending = false;
+    public GameObject ghost;
 
     public static GameManager Instance 
     {
@@ -83,7 +87,7 @@ public class GameManager : MonoBehaviour
             {
                 yield return waitGameOver;
                 inventoryUI.SetActive(false);
-                gameoverUI.SetActive(false);
+                gameoverUI.SetActive(true);
                 yield return waitGameOver;
                 SceneManager.LoadScene("MainMenu");
                 yield break;
@@ -91,16 +95,33 @@ public class GameManager : MonoBehaviour
             yield return waitFix;
         }
     }
-    private IEnumerator EndGame()
+    public void EndGame()
     {
-        while(true)
+        ghost.SetActive(false);
+        inventoryUI.SetActive(false);
+        endingUI.SetActive(true);
+        ending = true;
+    }
+    private IEnumerator EndingStory()
+    {
+        while(!ending)
         {
-            if(endGame)
-            {
-                //엔딩 스토리 설명과 크레딧
-            }
-            yield return waitFix;
+            yield return waitText;
         }
+        for (int i = 0; i < endingStory_.Length; i++)
+        {
+            endingStory.text += endingStory_[i];
+            if (Input.anyKeyDown)
+            {
+                EndingCredit();
+                yield break;
+            }
+            yield return waitText;
+        }
+    }
+    private void EndingCredit()
+    {
+
     }
 
     private IEnumerator GameStart()
@@ -163,7 +184,7 @@ public class GameManager : MonoBehaviour
         randomDispensEnd = false;
         gamestart = false;
         isPlaiable = false;
-        endGame = false;
+        lightNow = "";
 
         waitFix = new WaitForFixedUpdate();
         waitGameOver = new WaitForSeconds(2f);
@@ -172,6 +193,7 @@ public class GameManager : MonoBehaviour
         StartCoroutine(GameStart());
         StartCoroutine(GameOver());
         StartCoroutine(StartStory());
+        StartCoroutine(EndingStory());
     }
 
     // Update is called once per frame

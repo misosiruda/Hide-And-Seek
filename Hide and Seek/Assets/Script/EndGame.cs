@@ -6,9 +6,10 @@ public class EndGame : MonoBehaviour
 {
     private void OnTriggerStay(Collider other)
     {
-        if(other.gameObject.name == "Charactor")
+        if(other.gameObject.name == "Charactor" && GameManager.Instance.charmCount == 8)
         {
-            GameManager.Instance.endGame = true;
+            GameManager.Instance.isPlaiable = false;
+            GameManager.Instance.EndGame();
         }
     }
     // Start is called before the first frame update

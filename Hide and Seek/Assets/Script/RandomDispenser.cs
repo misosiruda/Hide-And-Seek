@@ -26,6 +26,7 @@ public class RandomDispenser : MonoBehaviour
             }
             catch (Exception ex)
             {
+                Debug.Log(ex);
                 rsm.RonSet(parent.name);
                 break;
             }

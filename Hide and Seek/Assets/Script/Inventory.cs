@@ -7,6 +7,8 @@ public class Inventory : MonoBehaviour
 {
     private List<Toggle> invenList = new List<Toggle>();
     public GameObject parent;
+    public Text bellText;
+    public Text charmText;
 
     private int prNum = 0;
 
@@ -66,5 +68,7 @@ public class Inventory : MonoBehaviour
     void Update()
     {
         InventoryChane();
+        bellText.text = "x" + GameManager.Instance.bellCount.ToString();
+        charmText.text = "x" + GameManager.Instance.charmCount.ToString();
     }
 }

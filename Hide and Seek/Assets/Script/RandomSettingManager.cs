@@ -3,6 +3,15 @@ using System.Collections.Generic;
 
 public class RandomSettingManager
 {
+    public RandomSettingManager()
+    {
+        randObjectNum = 0;
+        randObectName = new List<string>();
+        randObjectLoad = 0;
+        randObectLName = new List<string>();
+        randItemNum = 0;
+        randItemLoad = 0;
+    }
     private static int randObjectNum = 0;
     private static List<string> randObectName = new List<string>();
     public int RonGet() { return randObjectNum; }

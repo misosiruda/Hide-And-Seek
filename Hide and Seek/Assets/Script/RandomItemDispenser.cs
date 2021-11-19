@@ -5,10 +5,10 @@ using UnityEngine;
 
 public class RandomItemDispenser : MonoBehaviour
 {
-    private static List<GameObject> charmList;
-    private static List<GameObject> bellList;
+    private List<GameObject> charmList;
+    private List<GameObject> bellList;
     private static WaitForFixedUpdate waitFix = new WaitForFixedUpdate();
-    private static GameObject item;
+    private GameObject item;
 
     private RandomSettingManager rsm;
     private IEnumerator Dispenser(List<GameObject> list, string st, int max)
@@ -23,6 +23,7 @@ public class RandomItemDispenser : MonoBehaviour
             }
             catch (Exception ex)
             {
+                Debug.Log(ex);
                 break;
             }
             yield return waitFix;
@@ -43,7 +44,6 @@ public class RandomItemDispenser : MonoBehaviour
             catch (Exception ex)
             {
                 Debug.Log(ex);
-                Debug.Log(list.Count.ToString() + ", " + max.ToString());
             }
             yield return waitFix;
         }
