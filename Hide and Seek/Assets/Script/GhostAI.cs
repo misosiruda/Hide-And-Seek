@@ -63,7 +63,7 @@ public class GhostAI : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if(GameManager.Instance.catBell.Count == 0)
+        if (GameManager.Instance.catBell.Count == 0)
         {
             if (other.transform == target && (GameManager.Instance.isLoud || IsInSight(target)))
             {
@@ -193,9 +193,9 @@ public class GhostAI : MonoBehaviour
 
     private IEnumerator RoamingPos()
     {
-        while(true)
+        while (true)
         {
-            if(!isChacing && GameManager.Instance.catBell.Count == 0)
+            if (!isChacing && GameManager.Instance.catBell.Count == 0)
             {
                 Vector3 pos = target.position;
                 roamingPos = new Vector3();
@@ -209,13 +209,13 @@ public class GhostAI : MonoBehaviour
                 }
                 yield return waitRoamTerm;
             }
-            yield return waitFix;
+            yield return waitRoamTerm;
         }
     }
 
     private IEnumerator SpotCatBell()
     {
-        while(true)
+        while (true)
         {
             yield return wait60FPS;
             if (GameManager.Instance.catBell.Count != 0)
@@ -317,6 +317,7 @@ public class GhostAI : MonoBehaviour
             //StartCoroutine(OpenDoor());
             if (isChacing && GameManager.Instance.catBell.Count == 0)//쫒는중
             {
+                GameManager.Instance.isCaught = isChacing;
                 ghostAni.SetBool("isWalk", false);
                 ghostAni.SetBool("isRun", true);
                 if (nowPlay == "roam")
@@ -327,13 +328,16 @@ public class GhostAI : MonoBehaviour
                 }
                 agent.speed = GameManager.Instance.ghostRunSpd;
                 agent.destination = target.position;
-                if (GameManager.Instance.isInCloset && !moshindeiru)
+                if (GameManager.Instance.charmCount != 8)
                 {
-                    isChacing = false;
-                }
-                if (Vector3.Distance(ghost.position, target.position) > 50f)
-                {
-                    isChacing = false;
+                    if (GameManager.Instance.isInCloset && !moshindeiru)
+                    {
+                        isChacing = false;
+                    }
+                    if (Vector3.Distance(ghost.position, target.position) > 50f)
+                    {
+                        isChacing = false;
+                    }
                 }
                 if (Vector3.Distance(ghost.position, target.position) < 2f && !GameManager.Instance.isInCloset)//잡힘
                 {
@@ -374,9 +378,12 @@ public class GhostAI : MonoBehaviour
                     agent.angularSpeed = 0f;
                 }
             }
-            if (moshindeiru && GameManager.Instance.getOutCloset)//옷장 후 갑툭튀
+            if (moshindeiru || GameManager.Instance.charmCount == 8)//옷장 후 갑툭튀
             {
-                StartCoroutine(Moshindeiru());
+                if(GameManager.Instance.getOutCloset)
+                {
+                    StartCoroutine(Moshindeiru());
+                }
             }
         }
     }

@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
     public bool randomDispensEnd = false;
     public bool gamestart = false;
     public bool isPlaiable = false;
+    public bool isCaught = false;
     public string lightNow = "";
 
     private WaitForSeconds waitGameOver;

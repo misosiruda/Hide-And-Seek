@@ -81,6 +81,17 @@ public class Player : MonoBehaviour
     private AudioSource objectFX;
     public AudioSource pickItem;
 
+    public AudioClip jumpScare;
+    public AudioClip growling;
+    private List<AudioClip> BGMList;
+    public AudioClip BGM1;
+    public AudioClip BGM2;
+    public AudioClip BGM3;
+    public AudioSource BGM;
+    public Transform ghost;
+    private WaitForSeconds waitBGM;
+    private bool isJumpScared = false;
+
     public void Move()
     {
 
@@ -123,7 +134,7 @@ public class Player : MonoBehaviour
     public IEnumerator DoorInterection()
     {
         if (!isDoorMoving)
-        { 
+        {
             RaycastHit hitinfo;
             if (Physics.Raycast(plCamera.position, plCamera.forward, out hitinfo, 2f, doorLM))
             {
@@ -212,7 +223,7 @@ public class Player : MonoBehaviour
                     objectFX = cloDoor.parent.GetComponent<AudioSource>();
                     objectFX.clip = openCloset;
                     objectFX.Play();
-                    while (time<21)
+                    while (time < 21)
                     {
                         cloDoor.localRotation = Quaternion.Euler(-90, 90 / 18 * time, 0);
                         time++;
@@ -222,7 +233,7 @@ public class Player : MonoBehaviour
                     RaycastHit hitClo;
                     Physics.SphereCast(player.position - player.forward, 1f, player.forward, out hitClo, 2f, inClosetLM);
                     closet = hitClo.transform;
-                    while (time<10)
+                    while (time < 10)
                     {
                         plCamera.Rotate(0, 18, 0, Space.World);
                         player.position = Vector3.Lerp(player.position, new Vector3(closet.position.x, closet.position.y + 1.5f, closet.position.z), 0.3f);
@@ -232,7 +243,7 @@ public class Player : MonoBehaviour
                     time = 0;
                     while (time < 21)
                     {
-                        cloDoor.localRotation = Quaternion.Euler(-90, 110 -(90 / 18 * time), 0);
+                        cloDoor.localRotation = Quaternion.Euler(-90, 110 - (90 / 18 * time), 0);
                         time++;
                         yield return wait60FPS;
                     }
@@ -240,7 +251,7 @@ public class Player : MonoBehaviour
                 }
             }
         }
-        else if(GameManager.Instance.isPlaiable && Physics.SphereCast(player.position - player.forward, 1f, player.forward, out hitout, 2f, closetOutLM))
+        else if (GameManager.Instance.isPlaiable && Physics.SphereCast(player.position - player.forward, 1f, player.forward, out hitout, 2f, closetOutLM))
         {
             if (Input.GetKeyDown(KeyCode.E))
             {
@@ -307,7 +318,7 @@ public class Player : MonoBehaviour
                     {
                         item = hititem.transform.gameObject;
                         //아이템 획득
-                        switch(item.tag)
+                        switch (item.tag)
                         {
                             case "Charm":
                                 pickItem.clip = pickCharm;
@@ -368,9 +379,9 @@ public class Player : MonoBehaviour
 
     public void InvenToryUse()
     {
-        if(Input.GetKeyDown(KeyCode.F))
+        if (Input.GetKeyDown(KeyCode.F))
         {
-            switch(GameManager.Instance.invenSlot)
+            switch (GameManager.Instance.invenSlot)
             {
                 case 0:
                     FlashLightUse();
@@ -390,7 +401,7 @@ public class Player : MonoBehaviour
     {
         if (flashLight.activeSelf)
         {
-            GameManager.Instance.lightNow = "";
+            GameManager.Instance.lightNow = string.Empty;
             flashLight.SetActive(false);
             defaultLight.SetActive(true);
             return;
@@ -404,7 +415,7 @@ public class Player : MonoBehaviour
     {
         if (fireLight.activeSelf)
         {
-            GameManager.Instance.lightNow = "";
+            GameManager.Instance.lightNow = string.Empty;
             fireLight.SetActive(false);
             defaultLight.SetActive(true);
             return;
@@ -415,7 +426,7 @@ public class Player : MonoBehaviour
         defaultLight.SetActive(false);
     }
 
-    private void FXListInitialize()
+    private void SoundListInitialize()
     {
         walkFXList = new List<AudioClip>();
         walkFXList.Add(walk_01);
@@ -439,13 +450,17 @@ public class Player : MonoBehaviour
         runFXList.Add(run_08);
         runFXList.Add(run_09);
         runFXList.Add(run_10);
+        BGMList = new List<AudioClip>();
+        BGMList.Add(BGM1);
+        BGMList.Add(BGM2);
+        BGMList.Add(BGM3);
     }
 
     private IEnumerator FootStepFX()
     {
-        while(true)
+        while (true)
         {
-            if(GameManager.Instance.gameover)
+            if (GameManager.Instance.gameover)
             {
                 yield break;
             }
@@ -469,7 +484,7 @@ public class Player : MonoBehaviour
             }
             else
             {
-                yield return waitFix;
+                yield return waitWalk;
             }
         }
     }
@@ -482,6 +497,55 @@ public class Player : MonoBehaviour
         GameManager.Instance.catBell[GameManager.Instance.catBell.Count - 1].GetComponent<Rigidbody>().AddForce((aim.position - plCamera.position) * 10f, ForceMode.Impulse);
     }
 
+    private IEnumerator BGMControl()
+    {
+        while (true)
+        {
+            if (GameManager.Instance.isCaught && !isJumpScared)
+            {
+                BGM.volume = 1f;
+                BGM.clip = jumpScare;
+                BGM.Play();
+                isJumpScared = true;
+                yield return waitBGM;
+                continue;
+            }
+            else if (!BGM.isPlaying)
+            {
+                if (Vector3.Distance(ghost.position, player.position) < 15f)
+                {
+                    BGM.volume = 1f;
+                    BGM.clip = growling;
+                    BGM.Play();
+                    isJumpScared = false;
+                    yield return waitBGM;
+                }
+                else if (Vector3.Distance(ghost.position, player.position) > 60f)
+                {
+                    BGM.volume = 0.5f;
+                    BGM.clip = BGMList[Random.Range(0, 3)];
+                    BGM.Play();
+                    isJumpScared = false;
+                    yield return waitBGM;
+                }
+            }
+            else
+            {
+                if (20f < Vector3.Distance(ghost.position, player.position) && Vector3.Distance(ghost.position, player.position) < 50f)
+                {
+                    for (int i = 0; i < 10; i++)
+                    {
+                        BGM.volume -= 0.05f;
+                        yield return waitRun;
+                    }
+                    BGM.Pause();
+                    yield return waitBGM;
+                }
+            }
+            yield return waitBGM;
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -490,18 +554,20 @@ public class Player : MonoBehaviour
         waitFix = new WaitForFixedUpdate();
         waitWalk = new WaitForSeconds(0.5f);
         waitRun = new WaitForSeconds(0.25f);
-        FXListInitialize();
+        waitBGM = new WaitForSeconds(1f);
+        SoundListInitialize();
         StartCoroutine(FootStepFX());
+        StartCoroutine(BGMControl());
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(GameManager.Instance.isPlaiable && !GameManager.Instance.gameover)
+        if (GameManager.Instance.isPlaiable && !GameManager.Instance.gameover)
         {
             Move();
         }
-        if(GameManager.Instance.gameover || GameManager.Instance.ending)
+        if (GameManager.Instance.gameover || GameManager.Instance.ending)
         {
             footStep.Pause();
         }
@@ -513,7 +579,7 @@ public class Player : MonoBehaviour
     }
     private void LateUpdate()
     {
-        if(!GameManager.Instance.gameover)
+        if (!GameManager.Instance.gameover)
         {
             Vector3 vector = player.position;
             vector.y = player.position.y;
