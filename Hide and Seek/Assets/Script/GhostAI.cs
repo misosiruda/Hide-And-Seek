@@ -82,7 +82,7 @@ public class GhostAI : MonoBehaviour
         switch (GameManager.Instance.lightNow)
         {
             case "":
-                if (GameManager.Instance.catBell.Count == 0 && Vector3.Distance(ghost.position, target.position) < 5f)
+                if (GameManager.Instance.catBell.Count == 0 && GameManager.Instance.distance < 5f)
                 {
                     Vector3 trDir = (target.position - ghost.position).normalized;
                     float dot = Vector3.Dot(ghost.forward, trDir);
@@ -96,7 +96,7 @@ public class GhostAI : MonoBehaviour
                 else return false;
             case "flash":
                 {
-                    if (GameManager.Instance.catBell.Count == 0 && Vector3.Distance(ghost.position, target.position) < 50f)
+                    if (GameManager.Instance.catBell.Count == 0 && GameManager.Instance.distance < 50f)
                     {
                         Vector3 trDir = (target.position - ghost.position).normalized;
                         float dot = Vector3.Dot(ghost.forward, trDir);
@@ -111,7 +111,7 @@ public class GhostAI : MonoBehaviour
                 }
             case "fire":
                 {
-                    if (GameManager.Instance.catBell.Count == 0 && Vector3.Distance(ghost.position, target.position) < 30f)
+                    if (GameManager.Instance.catBell.Count == 0 && GameManager.Instance.distance < 30f)
                     {
                         Vector3 trDir = (target.position - ghost.position).normalized;
                         float dot = Vector3.Dot(ghost.forward, trDir);
@@ -315,8 +315,11 @@ public class GhostAI : MonoBehaviour
         if (GameManager.Instance.gamestart)
         {
             //StartCoroutine(OpenDoor());
+            if (GameManager.Instance.charmCount == 8) isChacing = true;
+            if (IsInSight(target)) isChacing = true;
             if (isChacing && GameManager.Instance.catBell.Count == 0)//쫒는중
             {
+                GameManager.Instance.JumpScare();
                 GameManager.Instance.isCaught = isChacing;
                 ghostAni.SetBool("isWalk", false);
                 ghostAni.SetBool("isRun", true);
@@ -334,12 +337,12 @@ public class GhostAI : MonoBehaviour
                     {
                         isChacing = false;
                     }
-                    if (Vector3.Distance(ghost.position, target.position) > 50f)
+                    if (GameManager.Instance.distance > 50f)
                     {
                         isChacing = false;
                     }
                 }
-                if (Vector3.Distance(ghost.position, target.position) < 2f && !GameManager.Instance.isInCloset)//잡힘
+                if (GameManager.Instance.distance < 2f && !GameManager.Instance.isInCloset)//잡힘
                 {
                     ghostAni.SetBool("isWalk", false);
                     ghostAni.SetBool("isRun", false);
@@ -348,7 +351,6 @@ public class GhostAI : MonoBehaviour
                     ghost.LookAt(new Vector3(plCamera.position.x, ghost.position.y, plCamera.position.z));
                     if (nowPlay != "scream")
                     {
-                        Debug.Log("scream");
                         nowPlay = "scream";
                         humming.clip = scream;
                         humming.loop = false;

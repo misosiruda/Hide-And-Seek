@@ -90,7 +90,6 @@ public class Player : MonoBehaviour
     public AudioSource BGM;
     public Transform ghost;
     private WaitForSeconds waitBGM;
-    private bool isJumpScared = false;
 
     public void Move()
     {
@@ -501,37 +500,26 @@ public class Player : MonoBehaviour
     {
         while (true)
         {
-            if (GameManager.Instance.isCaught && !isJumpScared)
+            if (!BGM.isPlaying)
             {
-                BGM.volume = 1f;
-                BGM.clip = jumpScare;
-                BGM.Play();
-                isJumpScared = true;
-                yield return waitBGM;
-                continue;
-            }
-            else if (!BGM.isPlaying)
-            {
-                if (Vector3.Distance(ghost.position, player.position) < 15f)
+                if (GameManager.Instance.distance < 15f)
                 {
                     BGM.volume = 1f;
                     BGM.clip = growling;
                     BGM.Play();
-                    isJumpScared = false;
                     yield return waitBGM;
                 }
-                else if (Vector3.Distance(ghost.position, player.position) > 60f)
+                else if (GameManager.Instance.distance > 60f)
                 {
                     BGM.volume = 0.5f;
                     BGM.clip = BGMList[Random.Range(0, 3)];
                     BGM.Play();
-                    isJumpScared = false;
                     yield return waitBGM;
                 }
             }
             else
             {
-                if (20f < Vector3.Distance(ghost.position, player.position) && Vector3.Distance(ghost.position, player.position) < 50f)
+                if (20f < GameManager.Instance.distance && GameManager.Instance.distance < 50f)
                 {
                     for (int i = 0; i < 10; i++)
                     {

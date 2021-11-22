@@ -11,6 +11,10 @@ public class MainMenu : MonoBehaviour
     {
         SceneManager.LoadScene("InGame");
     }
+    public void KeyBind()
+    {
+
+    }
     // Start is called before the first frame update
     void Start()
     {
