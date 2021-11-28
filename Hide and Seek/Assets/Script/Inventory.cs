@@ -68,7 +68,7 @@ public class Inventory : MonoBehaviour
     void Update()
     {
         InventoryChane();
-        bellText.text = "x" + GameManager.Instance.bellCount.ToString();
-        charmText.text = "x" + GameManager.Instance.charmCount.ToString();
+        bellText.text = GameManager.Instance.bellCount.ToString();
+        charmText.text = GameManager.Instance.charmCount.ToString();
     }
 }

@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
     public bool isCaught = false;
     public string lightNow = "";
     public float distance = 0f;
+    public bool gamePause = false;
 
     private WaitForSeconds waitGameOver;
     private WaitForSeconds waitText;
@@ -48,6 +49,10 @@ public class GameManager : MonoBehaviour
 
     public AudioSource playerAudio;
     public AudioClip jumpScare;
+    public bool isJumpScared = true;
+
+    public GameObject pauseMenu;
+    public GameObject endingCredit;
 
     public static GameManager Instance 
     {
@@ -115,35 +120,50 @@ public class GameManager : MonoBehaviour
         ghost.SetActive(false);
         inventoryUI.SetActive(false);
         endingUI.SetActive(true);
+        player.gameObject.SetActive(false);
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
         ending = true;
+        StartCoroutine(EndingStory());
     }
     private IEnumerator EndingStory()
     {
-        while(!ending)
-        {
-            yield break;
-        }
         string temp = "";
         for (int i = 0; i < endingStory_.Length; i++)
         {
-            temp += endingStory_[i];
+            temp += endingStory_[i]; 
+            if (Input.anyKeyDown)
+            {
+                endingStory.text = "";
+                StartCoroutine(EndingCredit());
+                yield break;
+            }
             if (endingStory_[i] == ' ')
             {
                 endingStory.text += temp;
                 temp = "";
                 yield return waitText;
             }
-            if (Input.anyKeyDown)
-            {
-                StartCoroutine(EndingCredit());
-                yield break;
-            }
             yield return waitFix;
         }
+        endingStory.text = "";
+        StartCoroutine(EndingCredit());
+        yield break;
     }
     private IEnumerator EndingCredit()
     {
-        yield return waitFix;
+        while(true)
+        {
+            yield return waitFix;
+            if(endingCredit.transform.position.y < 1500f)
+            {
+                endingCredit.GetComponent<RectTransform>().position += new Vector3(0, 1f, 0);
+            }
+            if (Input.anyKeyDown)
+            {
+                SceneManager.LoadScene("MainMenu");
+            }
+        }
     }
 
     private IEnumerator GameStart()
@@ -220,10 +240,30 @@ public class GameManager : MonoBehaviour
         yield break;
     }
 
-    public void JumpScare()
+    public IEnumerator JumpScare()
     {
-        playerAudio.clip = jumpScare;
-        playerAudio.Play();
+        if (isJumpScared)
+        {
+            isJumpScared = false;
+            playerAudio.clip = jumpScare;
+            playerAudio.Play();
+            yield return waitDist;
+        }
+    }
+
+    public void GamePause()
+    {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        gamePause = true;
+        pauseMenu.SetActive(true);
+    }
+    public void GameResume()
+    {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        gamePause = false;
+        pauseMenu.SetActive(false);
     }
 
     void Awake()
@@ -262,18 +302,29 @@ public class GameManager : MonoBehaviour
         waitEndGame = new WaitForSeconds(3f);
         waitText = new WaitForSeconds(0.1f);
         waitDist = new WaitForSeconds(0.5f);
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
         TipTextInitialize();
         StartCoroutine(GameStart());
         StartCoroutine(GameOver());
         StartCoroutine(StartStory());
         StartCoroutine(Distance());
-        StartCoroutine(EndingStory());
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            if(gamePause)
+            {
+                GameResume();
+            }
+            else
+            {
+                GamePause();
+            }
+        }
     }
 }
 //귀신 애니메이션 각도 회전 할때 위치 고정하고 각도 바꾸기 그럴려면 네비메쉬랑 연동 필요함

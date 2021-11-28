@@ -500,34 +500,37 @@ public class Player : MonoBehaviour
     {
         while (true)
         {
-            if (!BGM.isPlaying)
+            if (GameManager.Instance.isPlaiable && !GameManager.Instance.gameover)
             {
-                if (GameManager.Instance.distance < 15f)
+                if (!BGM.isPlaying)
                 {
-                    BGM.volume = 1f;
-                    BGM.clip = growling;
-                    BGM.Play();
-                    yield return waitBGM;
-                }
-                else if (GameManager.Instance.distance > 60f)
-                {
-                    BGM.volume = 0.5f;
-                    BGM.clip = BGMList[Random.Range(0, 3)];
-                    BGM.Play();
-                    yield return waitBGM;
-                }
-            }
-            else
-            {
-                if (20f < GameManager.Instance.distance && GameManager.Instance.distance < 50f)
-                {
-                    for (int i = 0; i < 10; i++)
+                    if (GameManager.Instance.distance < 15f)
                     {
-                        BGM.volume -= 0.05f;
-                        yield return waitRun;
+                        BGM.volume = 1f;
+                        BGM.clip = growling;
+                        BGM.Play();
+                        yield return waitBGM;
                     }
-                    BGM.Pause();
-                    yield return waitBGM;
+                    else if (GameManager.Instance.distance > 60f)
+                    {
+                        BGM.volume = 0.5f;
+                        BGM.clip = BGMList[Random.Range(0, 3)];
+                        BGM.Play();
+                        yield return waitBGM;
+                    }
+                }
+                else
+                {
+                    if (20f < GameManager.Instance.distance && GameManager.Instance.distance < 50f)
+                    {
+                        for (int i = 0; i < 10; i++)
+                        {
+                            BGM.volume -= 0.05f;
+                            yield return waitRun;
+                        }
+                        BGM.Pause();
+                        yield return waitBGM;
+                    }
                 }
             }
             yield return waitBGM;
@@ -551,23 +554,30 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (GameManager.Instance.isPlaiable && !GameManager.Instance.gameover)
+        if (!GameManager.Instance.gamePause)
         {
-            Move();
+            if (GameManager.Instance.isPlaiable && !GameManager.Instance.gameover)
+            {
+                Move();
+            }
+            if (GameManager.Instance.gameover || GameManager.Instance.ending)
+            {
+                footStep.Pause();
+            }
+            StartCoroutine(DoorInterection());
+            StartCoroutine(ClosetInterection());
+            StartCoroutine(ChiffonierInterection());
+            ItemInterectiom();
+            InvenToryUse();
         }
-        if (GameManager.Instance.gameover || GameManager.Instance.ending)
+        else
         {
             footStep.Pause();
         }
-        StartCoroutine(DoorInterection());
-        StartCoroutine(ClosetInterection());
-        StartCoroutine(ChiffonierInterection());
-        ItemInterectiom();
-        InvenToryUse();
     }
     private void LateUpdate()
     {
-        if (!GameManager.Instance.gameover)
+        if (!GameManager.Instance.gameover && !GameManager.Instance.gamePause && GameManager.Instance.isPlaiable)
         {
             Vector3 vector = player.position;
             vector.y = player.position.y;

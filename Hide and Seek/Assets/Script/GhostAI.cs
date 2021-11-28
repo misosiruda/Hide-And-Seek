@@ -65,7 +65,7 @@ public class GhostAI : MonoBehaviour
     {
         if (GameManager.Instance.catBell.Count == 0)
         {
-            if (other.transform == target && (GameManager.Instance.isLoud || IsInSight(target)))
+            if (other.transform == target && (GameManager.Instance.isLoud))
             {
                 isChacing = true;
                 if (GameManager.Instance.isInCloset)
@@ -312,14 +312,23 @@ public class GhostAI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (GameManager.Instance.gamePause)
+        {
+            agent.isStopped = true;
+            ghostAni.SetBool("isWalk", false);
+            ghostAni.SetBool("isRun", false);
+            humming.Pause();
+            return;
+        }
         if (GameManager.Instance.gamestart)
         {
             //StartCoroutine(OpenDoor());
+            agent.isStopped = false;
             if (GameManager.Instance.charmCount == 8) isChacing = true;
             if (IsInSight(target)) isChacing = true;
             if (isChacing && GameManager.Instance.catBell.Count == 0)//쫒는중
             {
-                GameManager.Instance.JumpScare();
+                StartCoroutine(GameManager.Instance.JumpScare());
                 GameManager.Instance.isCaught = isChacing;
                 ghostAni.SetBool("isWalk", false);
                 ghostAni.SetBool("isRun", true);
@@ -364,6 +373,7 @@ public class GhostAI : MonoBehaviour
             {
                 agent.speed = 2f;
                 agent.angularSpeed = 150f;
+                GameManager.Instance.isJumpScared = true;
                 ghostAni.SetBool("isWalk", true);
                 ghostAni.SetBool("isRun", false);
                 if (nowPlay != "roam")
@@ -379,8 +389,13 @@ public class GhostAI : MonoBehaviour
                     ghostAni.SetBool("isRun", false);
                     agent.angularSpeed = 0f;
                 }
+                isChacing = IsInSight(target);
             }
-            if (moshindeiru || GameManager.Instance.charmCount == 8)//옷장 후 갑툭튀
+            if (GameManager.Instance.isInCloset && GameManager.Instance.charmCount == 8)
+            {
+                moshindeiru = true;
+            }
+            if (moshindeiru)//옷장 후 갑툭튀
             {
                 if(GameManager.Instance.getOutCloset)
                 {
