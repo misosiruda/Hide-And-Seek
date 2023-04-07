@@ -23,11 +23,11 @@ public class RandomItemDispenser : MonoBehaviour
             }
             catch (Exception ex)
             {
-                Debug.Log(ex);
+                //Debug.Log(ex);
                 break;
             }
-            yield return waitFix;
         }
+        yield return waitFix;
         StartCoroutine(RandomItemSetting(list, max));
     }
 

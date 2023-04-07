@@ -96,8 +96,7 @@ public class Player : MonoBehaviour
 
         hAxis = Input.GetAxisRaw("Horizontal");
         vAxis = Input.GetAxisRaw("Vertical");
-        wDown = Input.GetButton("Run");
-
+        wDown = Input.GetKey(KeyCode.LeftShift);
 
         Vector2 moveInput = new Vector2(hAxis, vAxis);
         //카메라 전면
@@ -494,6 +493,8 @@ public class Player : MonoBehaviour
         GameManager.Instance.bellCount -= 1;
         GameManager.Instance.catBell.Add(Instantiate(catBell, plCamera.position, Quaternion.identity));
         GameManager.Instance.catBell[GameManager.Instance.catBell.Count - 1].GetComponent<Rigidbody>().AddForce((aim.position - plCamera.position) * 10f, ForceMode.Impulse);
+        GameManager.Instance.catBell[GameManager.Instance.catBell.Count - 1].GetComponent<AudioSource>().clip = throwBell;
+        GameManager.Instance.catBell[GameManager.Instance.catBell.Count - 1].GetComponent<AudioSource>().Play();
     }
 
     private IEnumerator BGMControl()

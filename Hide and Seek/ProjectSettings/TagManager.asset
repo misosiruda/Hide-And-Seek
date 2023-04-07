@@ -3,9 +3,7 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags:
-  - Charm
-  - Bell
+  tags: []
   layers:
   - Default
   - TransparentFX
@@ -15,13 +13,13 @@ TagManager:
   - UI
   - 
   - 
-  - Door
-  - Closet
-  - inCloset
-  - outCloset
-  - Chiffonier
-  - Item
-  - Player
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
   - 
   - 
   - 

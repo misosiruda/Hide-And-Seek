@@ -26,12 +26,12 @@ public class RandomDispenser : MonoBehaviour
             }
             catch (Exception ex)
             {
-                Debug.Log(ex);
-                rsm.RonSet(parent.name);
+                //Debug.Log(ex);
                 break;
             }
-            yield return waitFix;
         }
+        yield return waitFix;
+        rsm.RonSet(parent.name);
         StartCoroutine(RandomSetting(childList));
     }
 
@@ -39,31 +39,17 @@ public class RandomDispenser : MonoBehaviour
     {
         int chCount, actCount = 0, num;
         chCount = childList.Count;
-        for (int i = 0; i < chCount; i++)
+        while(actCount < chCount/2)
         {
-            if (UnityEngine.Random.Range(0, 11) < 5)
+            num = UnityEngine.Random.Range(0, chCount);
+            if (childList[num].activeSelf)
             {
-                childList[i].SetActive(false);
-            }
-            else
-            {
+                childList[num].SetActive(false);
                 actCount++;
             }
-            yield return waitFix;
         }
-        if (actCount < chCount / 2)
-        {
-            while (actCount < chCount / 2)
-            {
-                num = UnityEngine.Random.Range(0, chCount);
-                if(!childList[num].activeSelf)
-                {
-                    childList[num].SetActive(true);
-                    actCount++;
-                }
-                yield return waitFix;
-            }
-        }
+        yield return waitFix;
+
         //작업 끝 알리는 함수 넣어주기
         rsm.RolSet(parent.name);
         if (rsm.isLoaded())
@@ -75,7 +61,7 @@ public class RandomDispenser : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(Dispenser()); 
+        StartCoroutine(Dispenser());
         rsm = new RandomSettingManager();
         rid = this.gameObject.AddComponent<RandomItemDispenser>();
     }
@@ -83,6 +69,6 @@ public class RandomDispenser : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

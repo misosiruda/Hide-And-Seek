@@ -6,16 +6,6 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    //조작법에 인벤토리 선택 기능 안넣어줌.
-    //할아버지의 영혼 형식으로 처음에 간단한 조작법과 목표를 알려준다.
-    /// <summary>
-    /// 할 : 하루토... 잘 듣거라... 너는 지금 봉인이 풀려난 귀신의 결계 안에 있다. 여기에 흩어져있는 부적 8개를 모아서 토리이를 지나야 한다. 부적을 모으면 모을 수록 귀신은 강해질 것이고, 
-    /// 8개를 모으면 귀신은 언제나 너의 위치를 알것이야... 이곳에 숨을 수 있는 공간이 있을게다. 그곳을 이용하여 귀신을 따돌리고 부적 8개를 모아서 토리이를 지나 탈출하거라...
-    /// 이후 손전등과 라이터의 작동 방법을 독백으로 알려주고 차이점도 독백으로 알려준다.
-    /// 방울을 먹으면 던지면 주의를 끌 수 있을것 같다. 라고 독백
-    /// 부적을 모으면 할아버지가 말했던 부적이 이거구나. 라고 독백
-    /// </summary>
-    //파이널 프레젠 테이션은 PPT 와 용량 최대로 줄인 프로젝트 파일, 빌드한 .exe파일 그리고 그걸 플레이한 동영상 파일 까지 준비해서 오기
     private static GameManager instance = null;
     public int invenSlot = 0;
     public bool isLoud = false;
@@ -64,9 +54,9 @@ public class GameManager : MonoBehaviour
     public GameObject pauseMenu;
     public GameObject endingCredit;
 
-    public static GameManager Instance 
+    public static GameManager Instance
     {
-        get 
+        get
         {
             if (!instance)
             {
@@ -141,7 +131,7 @@ public class GameManager : MonoBehaviour
         string temp = "";
         for (int i = 0; i < endingStory_.Length; i++)
         {
-            temp += endingStory_[i]; 
+            temp += endingStory_[i];
             if (Input.anyKeyDown)
             {
                 endingStory.text = "";
@@ -194,7 +184,7 @@ public class GameManager : MonoBehaviour
                 }
             }
             yield return waitFix;
-        }   
+        }
     }
 
     private IEnumerator StartStory()

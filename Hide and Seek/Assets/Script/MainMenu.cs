@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 public class MainMenu : MonoBehaviour
 {
     public GameObject keybindPanel;
+    public GameObject title;
     public void GameStart()
     {
         SceneManager.LoadScene("InGame");
@@ -20,11 +21,13 @@ public class MainMenu : MonoBehaviour
     public void KeyBind()
     {
         keybindPanel.SetActive(true);
+        title.SetActive(false);
     }
 
     public void KeyBindClose()
     {
         keybindPanel.SetActive(false);
+        title.SetActive(true);
     }
 
     // Start is called before the first frame update
@@ -37,6 +40,6 @@ public class MainMenu : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }
